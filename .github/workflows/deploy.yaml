@@ -3,7 +3,7 @@ name: Deploy SAM Application
 on:
   push:
     branches:
-      - main
+      #- main informe a branch que ira disparar de forma automatica o pipeline
 
 jobs:
   deploy:
@@ -27,8 +27,8 @@ jobs:
       - name: Configurar credenciais AWS
         uses: aws-actions/configure-aws-credentials@v2
         with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }} # cadastre o acess key no github secrets visando proteçao deste dado sensivel
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }} # cadastre o secret key no github secrets visando proteçao deste dado sensivel
           aws-region: us-east-1
 
       - name: Build aplicação

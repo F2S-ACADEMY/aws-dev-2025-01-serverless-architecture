@@ -1,0 +1,60 @@
+📚 Inserir um livro (POST)
+curl -X POST "$API_URL" \
+  -H "Content-Type: application/json" \
+  -H "x-api-key: $API_KEY" \
+  -d '{"id":"101","title":"1984","author":"George Orwell"}'
+
+
+
+📖 Listar todos os livros (GET)
+curl -X GET "$API_URL" \
+  -H "x-api-key: $API_KEY"
+
+
+
+🧪 Inserir 10 livros diferentes
+curl -X POST "$API_URL" -H "Content-Type: application/json" -H "x-api-key: $API_KEY" -d '{"id":"101","title":"1984","author":"George Orwell"}'
+curl -X POST "$API_URL" -H "Content-Type: application/json" -H "x-api-key: $API_KEY" -d '{"id":"102","title":"O Senhor dos Anéis","author":"J.R.R. Tolkien"}'
+curl -X POST "$API_URL" -H "Content-Type: application/json" -H "x-api-key: $API_KEY" -d '{"id":"103","title":"A Revolução dos Bichos","author":"George Orwell"}'
+curl -X POST "$API_URL" -H "Content-Type: application/json" -H "x-api-key: $API_KEY" -d '{"id":"104","title":"Cem Anos de Solidão","author":"Gabriel García Márquez"}'
+curl -X POST "$API_URL" -H "Content-Type: application/json" -H "x-api-key: $API_KEY" -d '{"id":"105","title":"O Pequeno Príncipe","author":"Antoine de Saint-Exupéry"}'
+curl -X POST "$API_URL" -H "Content-Type: application/json" -H "x-api-key: $API_KEY" -d '{"id":"106","title":"Dom Casmurro","author":"Machado de Assis"}'
+curl -X POST "$API_URL" -H "Content-Type: application/json" -H "x-api-key: $API_KEY" -d '{"id":"107","title":"A Metamorfose","author":"Franz Kafka"}'
+curl -X POST "$API_URL" -H "Content-Type: application/json" -H "x-api-key: $API_KEY" -d '{"id":"108","title":"O Alquimista","author":"Paulo Coelho"}'
+curl -X POST "$API_URL" -H "Content-Type: application/json" -H "x-api-key: $API_KEY" -d '{"id":"109","title":"Harry Potter e a Pedra Filosofal","author":"J.K. Rowling"}'
+curl -X POST "$API_URL" -H "Content-Type: application/json" -H "x-api-key: $API_KEY" -d '{"id":"110","title":"O Código Da Vinci","author":"Dan Brown"}'
+
+
+comando para pegar apikey
+aws apigateway get-api-key   --api-key clxwnwhhp1   --include-value   --region us-east-1   --query 'value' --output text
+
+
+##############################adicionando novo campo #######################################################
+
+curl -X POST "$API_URL" -H "Content-Type: application/json" -H "x-api-key: $API_KEY" -d '{"id":"201","title":"1984","author":"George Orwell","genre":"Ficção Científica"}'
+curl -X POST "$API_URL" -H "Content-Type: application/json" -H "x-api-key: $API_KEY" -d '{"id":"202","title":"Orgulho e Preconceito","author":"Jane Austen","genre":"Romance"}'
+curl -X POST "$API_URL" -H "Content-Type: application/json" -H "x-api-key: $API_KEY" -d '{"id":"203","title":"O Senhor dos Anéis","author":"J.R.R. Tolkien","genre":"Fantasia"}'
+curl -X POST "$API_URL" -H "Content-Type: application/json" -H "x-api-key: $API_KEY" -d '{"id":"204","title":"A Arte da Guerra","author":"Sun Tzu","genre":"Estratégia"}'
+curl -X POST "$API_URL" -H "Content-Type: application/json" -H "x-api-key: $API_KEY" -d '{"id":"205","title":"Dom Casmurro","author":"Machado de Assis","genre":"Romance"}'
+curl -X POST "$API_URL" -H "Content-Type: application/json" -H "x-api-key: $API_KEY" -d '{"id":"206","title":"O Pequeno Príncipe","author":"Antoine de Saint-Exupéry","genre":"Fábula"}'
+curl -X POST "$API_URL" -H "Content-Type: application/json" -H "x-api-key: $API_KEY" -d '{"id":"207","title":"Cem Anos de Solidão","author":"Gabriel García Márquez","genre":"Realismo Mágico"}'
+curl -X POST "$API_URL" -H "Content-Type: application/json" -H "x-api-key: $API_KEY" -d '{"id":"208","title":"A Revolução dos Bichos","author":"George Orwell","genre":"Sátira"}'
+curl -X POST "$API_URL" -H "Content-Type: application/json" -H "x-api-key: $API_KEY" -d '{"id":"209","title":"O Alquimista","author":"Paulo Coelho","genre":"Ficção"}'
+curl -X POST "$API_URL" -H "Content-Type: application/json" -H "x-api-key: $API_KEY" -d '{"id":"210","title":"Harry Potter e a Pedra Filosofal","author":"J.K. Rowling","genre":"Fantasia"}'
+
+
+
+
+🛠️ Passos para implementar novos campos caso necessario
+1- Atualizar o código da Lambda Producer:
+Modifique a função Lambda responsável por inserir livros para aceitar e processar o novo campo genre.
+
+2 - Atualizar o DynamoDB:
+Se estiver usando um esquema definido, adicione o atributo genre à tabela.
+
+3 - Atualizar o Frontend:
+Modifique a interface para exibir o novo campo genre nos cards dos livros.
+
+4 - Atualizar os testes locais:
+Inclua o campo genre nos arquivos de evento usados para testes locais com o SAM.
+
