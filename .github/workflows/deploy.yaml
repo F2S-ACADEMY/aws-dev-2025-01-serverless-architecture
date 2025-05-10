@@ -14,6 +14,12 @@ jobs:
       - name: Checkout código
         uses: actions/checkout@v3
 
+      - name: Instalar Python 3.9
+        run: |
+          sudo apt update
+          sudo apt install -y python3.9 python3.9-venv python3.9-dev
+          sudo ln -sf /usr/bin/python3.9 /usr/bin/python
+
       - name: Instalar AWS SAM CLI
         uses: aws-actions/setup-sam@v2
         with:
