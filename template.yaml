@@ -16,7 +16,7 @@ Resources:
       Cors:
         AllowMethods: "'OPTIONS,GET,POST'"
         AllowHeaders: "'Content-Type,x-api-key'"
-        AllowOrigin: "'*'"          # ← adiciona esta linha
+        AllowOrigin: "'*'"
 
   ## 2) Usage Plan
   BooksApiUsagePlan:

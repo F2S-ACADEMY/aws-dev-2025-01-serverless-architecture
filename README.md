@@ -143,8 +143,8 @@ Acesse: [http://localhost:8000](http://localhost:8000)
 - Você pode adicionar upload de imagens com S3
 - Criar uma Dead Letter Queue (DLQ)
 - Criar alertas com CloudWatch
-- Evoluir o frontend com React ou Vue
-- Implementar CI/CD com GitHub Actions ou AWS CodePipeline
+- Evoluir o frontend inserindo novas funcionalidades
+- inserir novas funcionalidades no back para dar continuidade nos estudos
 
 ---
 
