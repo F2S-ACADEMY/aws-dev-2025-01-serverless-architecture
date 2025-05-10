@@ -14,11 +14,6 @@ jobs:
       - name: Checkout código
         uses: actions/checkout@v3
 
-      - name: Instalar AWS CLI
-        uses: aws-actions/setup-aws-cli@v1
-        with:
-          version: 2.27.12
-
       - name: Instalar AWS SAM CLI
         uses: aws-actions/setup-sam@v2
         with:
@@ -35,7 +30,7 @@ jobs:
         run: sam build
 
       - name: Deploy aplicação
-        run: >
+        run: |
           sam deploy \
             --no-confirm-changeset \
             --no-fail-on-empty-changeset \
