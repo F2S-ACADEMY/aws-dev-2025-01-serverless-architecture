@@ -7,14 +7,22 @@ on:
 
 jobs:
   deploy:
+    name: Build and Deploy to AWS
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout do código
+      - name: Checkout código
         uses: actions/checkout@v3
 
       - name: Instalar AWS CLI
-        uses: aws-actions/setup-aws-cli@v2
+        uses: aws-actions/setup-aws-cli@v1
+        with:
+          version: 2.27.12
+
+      - name: Instalar AWS SAM CLI
+        uses: aws-actions/setup-sam@v2
+        with:
+          version: 1.138.0
 
       - name: Configurar credenciais AWS
         uses: aws-actions/configure-aws-credentials@v2
@@ -23,13 +31,15 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: us-east-1
 
-      - name: Instalar AWS SAM CLI
-        uses: aws-actions/setup-sam@v2
-        with:
-          version: 1.138.0
-
-      - name: Build da aplicação
+      - name: Build aplicação
         run: sam build
 
-      - name: Deploy da aplicação
-        run: sam deploy --no-confirm-changeset --no-fail-on-empty-changeset --stack-name unicarioca-202501 --capabilities CAPABILITY_IAM --region us-east-1
+      - name: Deploy aplicação
+        run: >
+          sam deploy \
+            --no-confirm-changeset \
+            --no-fail-on-empty-changeset \
+            --stack-name unicarioca-202501 \
+            --capabilities CAPABILITY_IAM \
+            --region us-east-1 \
+            --resolve-s3
