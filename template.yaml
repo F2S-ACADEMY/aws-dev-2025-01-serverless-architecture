@@ -1,0 +1,126 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+
+Globals:
+  Function:
+    Timeout: 30
+    Tracing: Active
+
+Resources:
+
+  ## 1) REST API
+  BooksApi:
+    Type: AWS::Serverless::Api
+    Properties:
+      StageName: Prod
+      Cors:
+        AllowMethods: "'OPTIONS,GET,POST'"
+        AllowHeaders: "'Content-Type,x-api-key'"
+        AllowOrigin: "'*'"          # ← adiciona esta linha
+
+  ## 2) Usage Plan
+  BooksApiUsagePlan:
+    Type: AWS::ApiGateway::UsagePlan
+    Properties:
+      UsagePlanName: f2s-academy-books-usage-plan
+      ApiStages:
+        - ApiId: !Ref BooksApi
+          Stage: Prod
+      Throttle:
+        BurstLimit: 10
+        RateLimit: 5
+
+  ## 3) API Key
+  BooksApiKey:
+    Type: AWS::ApiGateway::ApiKey
+    Properties:
+      Name: f2s-academy-books-api-key
+      Enabled: true
+
+  ## 4) Key ↔ UsagePlan
+  BooksUsagePlanKey:
+    Type: AWS::ApiGateway::UsagePlanKey
+    Properties:
+      KeyId: !Ref BooksApiKey
+      KeyType: API_KEY
+      UsagePlanId: !Ref BooksApiUsagePlan
+
+  ## 5) POST /books → SQS
+  ProducerFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Runtime: python3.9
+      Handler: handler.handler
+      CodeUri: ./lambda/producer/
+      Tracing: Active
+      Environment:
+        Variables:
+          SQS_QUEUE_URL: "https://sqs.us-east-1.amazonaws.com/636078031479/f2s-academy-books-queue-dev"
+      Policies:
+        - SQSSendMessagePolicy:
+            QueueName: f2s-academy-books-queue-dev
+        - AWSXRayDaemonWriteAccess
+      Events:
+        BooksAPI:
+          Type: Api
+          Properties:
+            RestApiId: !Ref BooksApi
+            Path: /books
+            Method: post
+            Auth:
+              ApiKeyRequired: true
+
+  ## 6) GET /books → DynamoDB Scan
+  ListBooksFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Runtime: python3.9
+      Handler: handler.list_books
+      CodeUri: ./lambda/list-books/
+      Tracing: Active
+      Environment:
+        Variables:
+          DYNAMO_TABLE: "f2s-academy-books-table-dev"
+      Policies:
+        - DynamoDBReadPolicy:
+            TableName: f2s-academy-books-table-dev
+        - AWSXRayDaemonWriteAccess
+      Events:
+        ListBooksAPI:
+          Type: Api
+          Properties:
+            RestApiId: !Ref BooksApi
+            Path: /books
+            Method: get
+            Auth:
+              ApiKeyRequired: true
+
+  ## 7) SQS → DynamoDB PutItem
+  ConsumerFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Runtime: python3.9
+      Handler: handler.handler
+      CodeUri: ./lambda/consumer/
+      Tracing: Active
+      Environment:
+        Variables:
+          DYNAMO_TABLE: "f2s-academy-books-table-dev"
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: f2s-academy-books-table-dev
+        - AWSXRayDaemonWriteAccess
+      Events:
+        SQSTrigger:
+          Type: SQS
+          Properties:
+            Queue: arn:aws:sqs:us-east-1:636078031479:f2s-academy-books-queue-dev
+            BatchSize: 1
+
+Outputs:
+  ApiUrl:
+    Description: "Invoke URL for BooksApi"
+    Value: !Sub "https://${BooksApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/books"
+  ApiKey:
+    Description: "Use this for x-api-key header"
+    Value: !Ref BooksApiKey

@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Unicarioca Books</title>
+  <!-- Tailwind via CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gradient-to-br from-blue-50 to-white min-h-screen">
+
+  <!-- Cabeçalho com dois logos -->
+  <header class="flex items-center justify-between p-6 bg-white shadow-md">
+    <div class="flex items-center space-x-4">
+      <img src="unicarioca.jpg" alt="Unicarioca" class="h-12" />
+      <h1 class="text-3xl font-extrabold text-blue-800">Biblioteca Unicarioca</h1>
+    </div>
+    <img src="awslogo.png" alt="AWS" class="h-10" />
+  </header>
+
+  <!-- Conteúdo principal -->
+  <main class="container mx-auto px-4 py-8">
+    <h2 class="text-2xl font-semibold mb-6 text-gray-800">Livros Cadastrados</h2>
+    <div id="books-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+      <!-- Cards serão injetados aqui -->
+    </div>
+  </main>
+
+  <!-- Config da API -->
+  <script>
+    const API_URL = "https://9u1yfcj5ia.execute-api.us-east-1.amazonaws.com/Prod/books";
+    const API_KEY = "WhAKp9561XfkHD2Y5wc01eyTrl1FC7U6zoQ3upe8";
+  </script>
+  <script src="main.js"></script>
+</body>
+</html>
