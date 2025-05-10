@@ -1,144 +1,151 @@
-PoC Serverless: API Books com AWS SAM
+# PoC Serverless: API Books com AWS SAM
 
-Este repositório apresenta uma prova de conceito (PoC) de uma arquitetura Serverless usando AWS SAM (Serverless Application Model), que permite definir APIs, funções Lambda, filas SQS e tabelas DynamoDB como código, além de rodar e testar localmente.
+Este projeto demonstra uma arquitetura Serverless utilizando o [AWS SAM (Serverless Application Model)](https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/what-is-sam.html), com:
 
-O que é o AWS SAM?
+- **ProducerFunction**: API Gateway (POST `/books`) → Lambda → SQS
+- **ConsumerFunction**: SQS trigger → Lambda → DynamoDB
+- **ListBooksFunction**: API Gateway (GET `/books`) → Lambda → DynamoDB Scan
+- **Proteção com API Key**
+- **Observabilidade com AWS X-Ray**
+- **Frontend**: HTML estático + TailwindCSS
 
-O AWS SAM é um framework open-source para construir aplicações serverless na AWS. Ele se baseia em CloudFormation e adiciona abstrações simples como AWS::Serverless::Function, AWS::Serverless::Api e templates de políticas. Com o SAM CLI, você pode:
+---
 
-build: empacotar suas Lambdas e templates
+## 🧰 O que é o AWS SAM?
 
-local invoke: simular invocações de funções
+O AWS SAM é um framework da AWS para desenvolvimento de aplicações serverless. Ele usa o CLI `sam` para:
+- Escrever infraestrutura como código com sintaxe simplificada (`template.yaml`)
+- Simular invocações locais
+- Empacotar, fazer deploy e monitorar funções Lambda
 
-local start-api: rodar o API Gateway e Lambdas localmente
+---
 
-deploy: criar/update sua stack no AWS CloudFormation
+## ⚙️ Pré-requisitos
 
-Pré-requisitos
+- Conta AWS com permissões para criar: Lambda, API Gateway, SQS, DynamoDB
+- AWS CLI configurado (`aws configure`)
+- AWS SAM CLI instalado
+- Python 3.9+
+- Node.js (opcional para o frontend local)
 
-Conta AWS com permissões para criar Lambda, API Gateway, SQS e DynamoDB
+---
 
-AWS CLI instalado e configurado (aws configure)
+## 🚀 Backend (SAM)
 
-AWS SAM CLI instalado
+### Clonar repositório
 
-Python 3.9+
-
-Node.js (opcional, para evoluir o front-end)
-
-1. Backend (AWS SAM)
-
+```bash
 git clone <repo_url>
 cd <repo_folder>
+```
 
-O arquivo template.yaml contém:
+### Build e deploy
 
-BooksApi (AWS::Serverless::Api) com CORS e proteção por API Key
-
-ProducerFunction (POST /books → SQS)
-
-ListBooksFunction (GET /books → DynamoDB Scan)
-
-ConsumerFunction (SQS trigger → DynamoDB PutItem)
-
-Usage Plan, ApiKey, enlaces de Key ↔ UsagePlan
-
-X-Ray habilitado globalmente para tracing
-
-Build & Deploy no AWS
-
+```bash
 rm -rf .aws-sam
 sam build --template-file template.yaml
 sam deploy --guided --template-file template.yaml
+```
 
-Stack Name: unicarioca-202501
+Durante o deploy:
 
-Region: us-east-1
+- Nome da stack: `unicarioca-202501`
+- Região: `us-east-1`
+- Permitir criação de IAM Roles
+- Habilitar rollback se quiser
 
-Permita criação de IAM Roles
+**Outputs importantes:**
 
-Habilite rollback conforme necessidade
+- `ApiUrl`: URL base da API (ex: https://abc123.execute-api.us-east-1.amazonaws.com/Prod/books)
+- `ApiKey`: valor para usar no header `x-api-key`
 
-Anote os Outputs:
+---
 
-ApiUrl: endpoint REST (ex: https://.../Prod/books)
+## 🧪 Testes com cURL
 
-ApiKey: valor secreto a usar no header x-api-key
+### Criar livro (Producer)
 
-2. Testes via cURL
-
-Inserir um livro (Producer)
-
+```bash
 curl -i -X POST "$API_URL" \
   -H "Content-Type: application/json" \
   -H "x-api-key: $API_KEY" \
   -d '{"id":"600","title":"Dom Quixote","author":"Miguel de Cervantes"}'
+```
 
-Listar todos os livros (ListBooks)
+### Listar livros (ListBooks)
 
+```bash
 curl -i -X GET "$API_URL" \
   -H "x-api-key: $API_KEY"
+```
 
-3. Testes Locais com SAM CLI
+---
 
-Para não subir tudo na AWS, você pode simular localmente:
+## 🧪 Testes Locais com SAM
 
-Gerar eventos de SQS
+### Gerar evento SQS
 
+```bash
 sam local generate-event sqs receive-message \
-  --body '{"id":"600","title":"Dom Quixote","author":"Miguel de Cervantes"}' \
-  > event.json
+  --body '{"id":"600","title":"Dom Quixote","author":"Miguel de Cervantes"}' > event.json
+```
 
-Invoke da ConsumerFunction
+### Executar função Consumer local
 
-sam build --template-file template.yaml
-sam local invoke ConsumerFunction -e event.json
+```bash
+sam local invoke ConsumerFunction -e event.json --env-vars env.json
+```
 
-Start API Gateway local
+---
 
-sam build --template-file template.yaml
-sam local start-api --template-file template.yaml --env-vars env.json
+## 🎨 Frontend
 
-env.json deve conter as variáveis de ambiente para a função Producer:
+### Estrutura
 
-{
-  "ProducerFunction": {
-    "SQS_QUEUE_URL": "https://sqs.us-east-1.amazonaws.com/636078031479/f2s-academy-books-queue-dev"
-  }
-}
+```bash
+frontend/
+├── index.html
+├── script.js
+├── style.css
+├── awslogo.png
+├── unicarioca.jpg
+├── default-cover.png
+```
 
-Testar endpoints localmente
+### Servir localmente
 
-curl -i -X POST http://127.0.0.1:3000/books \
-  -H "Content-Type: application/json" \
-  -d '{"id":"601","title":"Teste Local","author":"Você"}'
-
-Esses comandos permitem validar seus Lambdas, SQS e API Gateway sem precisar fazer deploy.
-
-4. Frontend estático
-
+```bash
 cd frontend
-# certifique-se de ter os assets: unicarioca.jpg, awslogo.png, default-cover.png
 python3 -m http.server 8000
+```
 
-Acesse http://localhost:8000 para ver a lista de livros com design responsivo usando Tailwind CSS.
+Acesse: [http://localhost:8000](http://localhost:8000)
 
-5. Observabilidade & Autenticação
+---
 
-X-Ray: Tracing: Active em todas as funções + policy AWSXRayDaemonWriteAccess
+## 📈 Observabilidade
 
-API Key: uso de UsagePlan e ApiKey para proteger métodos
+- Todas as funções têm `Tracing: Active`
+- Permissão `AWSXRayDaemonWriteAccess` incluída
 
-Próximos passos sugeridos
+---
 
-Adicionar Dead-Letter Queue (DLQ) para o Consumer
+## 🔐 Segurança com API Key
 
-Configurar CloudWatch Alarms para erros e tamanho da fila
+- Criada via `AWS::ApiGateway::ApiKey`
+- Associada ao `UsagePlan`
+- Obrigatória no método POST e GET
 
-Criar CI/CD (GitHub Actions ou AWS CodePipeline)
+---
 
-Evoluir front-end para React ou outro framework
+## 📦 Extras
 
-Incluir upload de capas no S3 e gravar imageUrl no DynamoDB
+- Você pode adicionar upload de imagens com S3
+- Criar uma Dead Letter Queue (DLQ)
+- Criar alertas com CloudWatch
+- Evoluir o frontend com React ou Vue
+- Implementar CI/CD com GitHub Actions ou AWS CodePipeline
 
-PoC desenvolvida para alunos da Unicarioca. Aproveite e explore!
+---
+
+> PoC desenvolvida para alunos da Unicarioca — para fins educacionais
