@@ -30,6 +30,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         card.innerHTML = `
           <h3 class="text-xl font-bold text-blue-700 mb-2">${book.title}</h3>
           <p class="text-gray-700 mb-1"><strong>Autor:</strong> ${book.author}</p>
+          <p class="text-gray-500 text-sm mb-4"><strong>ID:</strong> ${book.genre}</p>
           <p class="text-gray-500 text-sm mb-4"><strong>ID:</strong> ${book.id}</p>
           <img src="default-cover.png" alt="Capa padrão" class="w-full h-48 object-cover rounded-lg mb-2" />
         `;

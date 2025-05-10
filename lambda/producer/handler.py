@@ -9,15 +9,15 @@ QUEUE_URL = os.environ["SQS_QUEUE_URL"]
 def handler(event, context):
     """
     Espera um POST com JSON:
-      { "id": "123", "title": "Meu Livro", "author": "Fulano" }
+      { "id": "123", "title": "Meu Livro", "author": "Fulano" , "genre": "genero do livro"}
     """
     try:
         body = json.loads(event.get("body", "{}"))
         # Validação simples
-        if not all(k in body for k in ("id", "title", "author")):
+        if not all(k in body for k in ("id", "title", "author","genre")):
             return {
                 "statusCode": 400,
-                "body": json.dumps({"error": "Campos obrigatórios: id, title, author"})
+                "body": json.dumps({"error": "Campos obrigatórios: id, title, author, genre"})
             }
 
         # Enfileira a mensagem
